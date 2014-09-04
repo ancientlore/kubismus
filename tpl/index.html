@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<title>{{.Title}}</title>
+		<script type="text/javascript" src="web/d3.min.js"></script>
+		<script type="text/javascript" src="web/cubism.v1.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="web/kubismus.css"/>
+		<link rel="stylesheet" type="text/css" href="web/table.css"/>
+	</head>
+	<body>
+		<div class="title">{{if .Image}}<img src="{{.Image}}"/>&nbsp;{{end}}{{if .Title}}{{.Title}}{{end}}</div>
+		<div id="kubismus"></div>
+		<table class="gridtable">
+			<thead>
+				<tr><th>Item</th><th>Value</th></tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+		<script>
+			function getReading(name) {
+				var values = [], last;
+
+				return context.metric(function(start, stop, step, callback) {
+					start = +start, stop = +stop;
+					if (isNaN(last)) last = start;
+					while (last < stop) {
+						last += step;
+						d3.json("json/" + name
+							+ "?start=" + encodeURIComponent(cubism_cubeFormatDate(start))
+							+ "&stop=" + encodeURIComponent(cubism_cubeFormatDate(stop))
+							+ "&step=" + encodeURIComponent(step),
+							function(data) {
+								eval("values.push(data.value.HeapMemoryUsage." + name + ")");
+							}
+						);
+					}
+					callback(null, values = values.slice((start - stop) / step));
+				}, name);
+			}
+		</script>
+		<script>
+			var context = cubism.context()
+					.serverDelay(0)
+					.clientDelay(0)
+					.step(1e3)
+					.size(960);
+
+			var readingList = [{{range $r, $i := .Readings}}{{if $i}}, {{end}}"{{$r}}"{{end}}];
+			var readings = [];
+
+			for (var i = 0; i < readingList.length; i++) {
+					readings.push(getReading(readingList[i]));
+			}
+
+			d3.select("#kubismus").call(function(div) {
+
+				div.append("div")
+					.attr("class", "axis")
+					.call(context.axis().orient("top"));
+
+				div.selectAll(".horizon")
+					.data(readings)
+					.enter().append("div")
+					.attr("class", "horizon")
+					.call(context.horizon()
+					.height(50));
+			});
+
+			context.on("focus", function(i) {
+				d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
+			});
+		</script>
+		<script>
+			var table = d3.select('table');
+
+			var update = function(new_data) {
+				var rows = table.selectAll('tbody').selectAll('tr').data(new_data, function(d) { return d && d.key; });
+
+				// -- Row Update --
+
+				var cells = rows.selectAll('td').data(function(d) { return [d.key, d.value]; });
+
+				// Cells enter selection
+				cells.enter().append('td');
+				cells.text(function(d) { return d; });
+
+				// Cells exit selection
+				cells.exit().remove();
+
+				// -- Row Enter --
+
+				var cells_in_new_rows = rows.enter().append('tr').selectAll('td').data(function(d) { return [d.key, d.value]; });
+
+				cells_in_new_rows.enter().append('td');
+
+				cells_in_new_rows.text(function(d) { return d; });
+
+				// -- Row Exit --
+
+				rows.exit().remove();
+			};
+
+			var refresh = function() {
+				d3.json("json/notes",
+					function(data) {
+						update(data);
+					}
+				);				
+			};
+			setTimeout(refresh, 100);
+			setInterval(refresh, 5000);
+		</script>
+	</body>
+</html>
