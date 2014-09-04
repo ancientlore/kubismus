@@ -9,7 +9,7 @@
 		<link rel="stylesheet" type="text/css" href="web/table.css"/>
 	</head>
 	<body>
-		<div class="title">{{if .Image}}<img src="{{.Image}}"/>&nbsp;{{end}}{{if .Title}}{{.Title}}{{end}}</div>
+		<div class="heading">{{if .Image}}<img src="{{.Image}}"/>&nbsp;{{end}}{{if .Title}}{{.Title}}{{end}}</div>
 		<div id="kubismus"></div>
 		<table class="gridtable">
 			<thead>
@@ -23,19 +23,15 @@
 
 				return context.metric(function(start, stop, step, callback) {
 					start = +start, stop = +stop;
-					if (isNaN(last)) last = start;
-					while (last < stop) {
-						last += step;
-						d3.json("json/" + name
-							+ "?start=" + encodeURIComponent(cubism_cubeFormatDate(start))
-							+ "&stop=" + encodeURIComponent(cubism_cubeFormatDate(stop))
-							+ "&step=" + encodeURIComponent(step),
-							function(data) {
-								eval("values.push(data.value.HeapMemoryUsage." + name + ")");
-							}
-						);
-					}
-					callback(null, values = values.slice((start - stop) / step));
+					d3.json("json/metrics/" + name
+						+ "?start=" + encodeURIComponent(start)
+						+ "&stop=" + encodeURIComponent(stop)
+						+ "&step=" + encodeURIComponent(step),
+						function(data) {
+							if (!data) return callback(new Error("unable to load data"));
+							callback(null, data);
+						}
+					);
 				}, name);
 			}
 		</script>
@@ -46,7 +42,7 @@
 					.step(1e3)
 					.size(960);
 
-			var readingList = [{{range $r, $i := .Readings}}{{if $i}}, {{end}}"{{$r}}"{{end}}];
+			var readingList = [{{range $i, $v := .Readings}}{{if $i}}, {{end}}"{{$v}}"{{end}}];
 			var readings = [];
 
 			for (var i = 0; i < readingList.length; i++) {

@@ -10,6 +10,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"path"
+	"strconv"
 	"strings"
 )
 
@@ -44,13 +46,15 @@ func init() {
 	mux = http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(index))
 	mux.Handle("/web/", http.HandlerFunc(static.ServeHTTP))
-	mux.Handle("/json/", http.HandlerFunc(handleJson))
 	mux.Handle("/json/notes", http.HandlerFunc(jsonNotes))
+	mux.Handle("/json/metrics", http.HandlerFunc(jsonNames))
+	mux.Handle("/json/metrics/", http.HandlerFunc(jsonMetrics))
 }
 
 // index handles the template rendering
 func index(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" || r.URL.Path == "/index" {
+		pg.Readings = getMetricNames()
 		tmpl.ExecuteTemplate(w, "kubismus", pg)
 	} else {
 		http.NotFound(w, r)
@@ -59,17 +63,62 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func jsonNotes(w http.ResponseWriter, r *http.Request) {
 	notes := getNotes()
-	b, err := json.Marshal(notes)
+	defer releaseNotes(notes)
+	e := json.NewEncoder(w)
+	if e == nil {
+		http.Error(w, "Unable to create json encoder", 500)
+		return
+	}
+	err := e.Encode(notes)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
-	} else {
-		w.Write(b)
 	}
 }
 
-// handleJson handles producing the metrics as JSON needed by Cubism
-func handleJson(w http.ResponseWriter, r *http.Request) {
-	http.NotFound(w, r)
+func jsonNames(w http.ResponseWriter, r *http.Request) {
+	n := getMetricNames()
+	e := json.NewEncoder(w)
+	if e == nil {
+		http.Error(w, "Unable to create json encoder", 500)
+		return
+	}
+	err := e.Encode(n)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+	}
+}
+
+func jsonMetrics(w http.ResponseWriter, r *http.Request) {
+	name := path.Base(r.URL.Path)
+	// assume step = 1000ms for this
+	start, err1 := strconv.ParseInt(r.URL.Query().Get("start"), 10, 64)
+	stop, err2 := strconv.ParseInt(r.URL.Query().Get("stop"), 10, 64)
+	if err1 != nil || err2 != nil {
+		http.Error(w, "Invalid start or stop", 500)
+		return
+	}
+	count := int((stop - start) / 1000)
+	m := getMetrics(name)
+	if m == nil {
+		http.Error(w, "No metric named "+name, 500)
+		return
+	}
+	defer releaseMetrics(m)
+	if count < 0 || count > len(m) {
+		http.Error(w, "Invalid start or stop range", 500)
+		return
+	}
+	mout := m[len(m)-count:]
+	//log.Printf("Count %d len %d data %v", count, len(m), mout)
+	e := json.NewEncoder(w)
+	if e == nil {
+		http.Error(w, "Unable to create json encoder", 500)
+		return
+	}
+	err := e.Encode(mout)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+	}
 }
 
 // Setup sets the basic parameters for the graph page.
