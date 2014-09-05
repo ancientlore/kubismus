@@ -79,6 +79,7 @@ func jsonNotes(w http.ResponseWriter, r *http.Request) {
 // jsonDefs handles returning the definitions of the metrics in JSON format
 func jsonDefs(w http.ResponseWriter, r *http.Request) {
 	n := getMetricDefs()
+	defer releaseMetricDefs(n)
 	e := json.NewEncoder(w)
 	if e == nil {
 		http.Error(w, "Unable to create json encoder", 500)
@@ -93,14 +94,14 @@ func jsonDefs(w http.ResponseWriter, r *http.Request) {
 // jsonMetrics handles returning metric values in JSON format
 func jsonMetrics(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
-	var mtype Op
+	var op Op
 	switch r.URL.Query().Get("op") {
 	case "count":
-		mtype = COUNT
+		op = COUNT
 	case "average":
-		mtype = AVERAGE
+		op = AVERAGE
 	case "sum":
-		mtype = SUM
+		op = SUM
 	default:
 		http.Error(w, "Invalid type, must be \"count\", \"average\", or \"sum\"", 500)
 		return
@@ -113,7 +114,7 @@ func jsonMetrics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	count := int((stop - start) / 1000)
-	m := getMetrics(name, mtype)
+	m := getMetrics(name, op)
 	if m == nil {
 		http.Error(w, "No metric named \""+name+"\" found", 500)
 		return

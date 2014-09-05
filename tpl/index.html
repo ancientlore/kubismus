@@ -18,14 +18,14 @@
 			<tbody></tbody>
 		</table>
 		<script>
-			function getReading(name, mtype, dname) {
+			function getReading(name, op, dname) {
 				var values = [], last;
 
 				return context.metric(function(start, stop, step, callback) {
 					start = +start, stop = +stop;
 					d3.json("json/metrics"
 						+ "?name=" + encodeURIComponent(name)
-						+ "&op=" + encodeURIComponent(mtype)
+						+ "&op=" + encodeURIComponent(op)
 						+ "&start=" + encodeURIComponent(start)
 						+ "&stop=" + encodeURIComponent(stop)
 						+ "&step=" + encodeURIComponent(step),
