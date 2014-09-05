@@ -114,12 +114,12 @@ func jsonMetrics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	count := int((stop - start) / 1000)
-	m := getMetrics(name, op)
+	m := GetMetrics(name, op)
 	if m == nil {
 		http.Error(w, "No metric named \""+name+"\" found", 500)
 		return
 	}
-	defer releaseMetrics(m)
+	defer ReleaseMetrics(m)
 	if count < 0 || count > len(m) {
 		http.Error(w, "Invalid start or stop range", 500)
 		return

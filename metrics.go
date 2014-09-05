@@ -100,8 +100,8 @@ func releaseMetricDefs(m []metricDef) {
 	}
 }
 
-// getMetrics returns a list of values for a metric
-func getMetrics(name string, op Op) []float64 {
+// GetMetrics returns a list of values for a metric
+func GetMetrics(name string, op Op) []float64 {
 	c := getmetric{name: name, op: op, reply: make(chan []float64)}
 	getMetricsChan <- c
 	return <-c.reply
@@ -109,7 +109,7 @@ func getMetrics(name string, op Op) []float64 {
 
 // releaseMetrics returns the slice of values to the leaky buffer, if possible.
 // While not required, using it reduces work for the garbage collector.
-func releaseMetrics(m []float64) {
+func ReleaseMetrics(m []float64) {
 	// Reuse buffer if there's room.
 	select {
 	case freeListM <- m:
