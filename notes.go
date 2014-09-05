@@ -4,11 +4,13 @@ import (
 	"sort"
 )
 
+// note defines the information stored for a note
 type note struct {
 	Name  string `json:"key"`
 	Value string `json:"value"`
 }
 
+// sortNote specifies how to sort a slice of notes
 type sortNote []note
 
 func (a sortNote) Len() int           { return len(a) }
@@ -21,8 +23,9 @@ var (
 	freeList     = make(chan []note, 16)
 )
 
+// init initializes the notes system
 func init() {
-	go noteservice()
+	go noteService()
 }
 
 // Note logs a specific value to show in a table.
@@ -30,12 +33,14 @@ func Note(name, value string) {
 	noteChan <- note{Name: name, Value: value}
 }
 
+// getNotes returns the currently defined notes.
 func getNotes() []note {
 	c := make(chan []note)
 	getNotesChan <- c
 	return <-c
 }
 
+// releaseNotes returns the slice to the leaky buffer, if possible.
 func releaseNotes(n []note) {
 	// Reuse buffer if there's room.
 	select {
@@ -46,7 +51,8 @@ func releaseNotes(n []note) {
 	}
 }
 
-func noteservice() {
+// noteservice process note-related requests
+func noteService() {
 	notes := make(map[string]string)
 	for {
 		select {

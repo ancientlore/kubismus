@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	DefaultPath = "/kubismus/"
+	DefaultPath = "/kubismus/" // The default path on the URL to get to the Kubismus display
 )
 
 var (
@@ -24,6 +24,7 @@ var (
 	pg   page               // page data for template
 )
 
+// page represents data that is rendered in the HTML
 type page struct {
 	Title    string      // Monitor page title
 	Image    string      // Optional monitor page image
@@ -46,20 +47,21 @@ func init() {
 	mux.Handle("/", http.HandlerFunc(index))
 	mux.Handle("/web/", http.HandlerFunc(static.ServeHTTP))
 	mux.Handle("/json/notes", http.HandlerFunc(jsonNotes))
-	mux.Handle("/json/metrics/list", http.HandlerFunc(jsonNames))
+	mux.Handle("/json/metrics/list", http.HandlerFunc(jsonDefs))
 	mux.Handle("/json/metrics", http.HandlerFunc(jsonMetrics))
 }
 
 // index handles the template rendering
 func index(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" || r.URL.Path == "/index" {
-		pg.Readings = getMetricNames()
+		pg.Readings = getMetricDefs()
 		tmpl.ExecuteTemplate(w, "kubismus", pg)
 	} else {
 		http.NotFound(w, r)
 	}
 }
 
+// jsonNotes handles returning note data in JSON format
 func jsonNotes(w http.ResponseWriter, r *http.Request) {
 	notes := getNotes()
 	defer releaseNotes(notes)
@@ -74,8 +76,9 @@ func jsonNotes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func jsonNames(w http.ResponseWriter, r *http.Request) {
-	n := getMetricNames()
+// jsonDefs handles returning the definitions of the metrics in JSON format
+func jsonDefs(w http.ResponseWriter, r *http.Request) {
+	n := getMetricDefs()
 	e := json.NewEncoder(w)
 	if e == nil {
 		http.Error(w, "Unable to create json encoder", 500)
@@ -87,16 +90,17 @@ func jsonNames(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// jsonMetrics handles returning metric values in JSON format
 func jsonMetrics(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
-	var mtype kind
-	switch r.URL.Query().Get("type") {
+	var mtype Op
+	switch r.URL.Query().Get("op") {
 	case "count":
-		mtype = mCount
+		mtype = COUNT
 	case "average":
-		mtype = mAverage
+		mtype = AVERAGE
 	case "sum":
-		mtype = mSum
+		mtype = SUM
 	default:
 		http.Error(w, "Invalid type, must be \"count\", \"average\", or \"sum\"", 500)
 		return

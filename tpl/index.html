@@ -18,14 +18,14 @@
 			<tbody></tbody>
 		</table>
 		<script>
-			function getReading(name, mtype) {
+			function getReading(name, mtype, dname) {
 				var values = [], last;
 
 				return context.metric(function(start, stop, step, callback) {
 					start = +start, stop = +stop;
 					d3.json("json/metrics"
 						+ "?name=" + encodeURIComponent(name)
-						+ "&type=" + encodeURIComponent(mtype)
+						+ "&op=" + encodeURIComponent(mtype)
 						+ "&start=" + encodeURIComponent(start)
 						+ "&stop=" + encodeURIComponent(stop)
 						+ "&step=" + encodeURIComponent(step),
@@ -34,7 +34,7 @@
 							callback(null, data);
 						}
 					);
-				}, name + " - " + mtype);
+				}, dname);
 			}
 		</script>
 		<script>
@@ -44,11 +44,11 @@
 					.step(1e3)
 					.size(960);
 
-			var readingList = [{{range $i, $v := .Readings}}{{if $i}}, {{end}}{ Name: "{{$v.Name}}", Type: "{{$v.Type}}"}{{end}}];
+			var readingList = [{{range $i, $v := .Readings}}{{if $i}}, {{end}}{ Name: "{{$v.Name}}", Op: "{{$v.Op}}", DisplayName: "{{$v.DisplayName}}"}{{end}}];
 			var readings = [];
 
 			for (var i = 0; i < readingList.length; i++) {
-					readings.push(getReading(readingList[i].Name, readingList[i].Type));
+					readings.push(getReading(readingList[i].Name, readingList[i].Op, readingList[i].DisplayName));
 			}
 
 			d3.select("#kubismus").call(function(div) {
