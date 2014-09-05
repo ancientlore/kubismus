@@ -10,7 +10,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"path"
 	"strconv"
 	"strings"
 )
@@ -26,9 +25,9 @@ var (
 )
 
 type page struct {
-	Title    string   // Monitor page title
-	Image    string   // Optional monitor page image
-	Readings []string // List of the names for each reading that gets a graph
+	Title    string      // Monitor page title
+	Image    string      // Optional monitor page image
+	Readings []metricDef // List of the names for each reading that gets a graph
 }
 
 // init sets up the templates and http handlers
@@ -41,14 +40,14 @@ func init() {
 
 	pg.Title = "Kubismus"
 	pg.Image = "web/kubismus36.png"
-	pg.Readings = make([]string, 0)
+	pg.Readings = make([]metricDef, 0)
 
 	mux = http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(index))
 	mux.Handle("/web/", http.HandlerFunc(static.ServeHTTP))
 	mux.Handle("/json/notes", http.HandlerFunc(jsonNotes))
-	mux.Handle("/json/metrics", http.HandlerFunc(jsonNames))
-	mux.Handle("/json/metrics/", http.HandlerFunc(jsonMetrics))
+	mux.Handle("/json/metrics/list", http.HandlerFunc(jsonNames))
+	mux.Handle("/json/metrics", http.HandlerFunc(jsonMetrics))
 }
 
 // index handles the template rendering
@@ -89,18 +88,30 @@ func jsonNames(w http.ResponseWriter, r *http.Request) {
 }
 
 func jsonMetrics(w http.ResponseWriter, r *http.Request) {
-	name := path.Base(r.URL.Path)
+	name := r.URL.Query().Get("name")
+	var mtype kind
+	switch r.URL.Query().Get("type") {
+	case "count":
+		mtype = mCount
+	case "average":
+		mtype = mAverage
+	case "sum":
+		mtype = mSum
+	default:
+		http.Error(w, "Invalid type, must be \"count\", \"average\", or \"sum\"", 500)
+		return
+	}
 	// assume step = 1000ms for this
 	start, err1 := strconv.ParseInt(r.URL.Query().Get("start"), 10, 64)
 	stop, err2 := strconv.ParseInt(r.URL.Query().Get("stop"), 10, 64)
 	if err1 != nil || err2 != nil {
-		http.Error(w, "Invalid start or stop", 500)
+		http.Error(w, "Invalid start or stop, must be time value in milliseconds", 500)
 		return
 	}
 	count := int((stop - start) / 1000)
-	m := getMetrics(name)
+	m := getMetrics(name, mtype)
 	if m == nil {
-		http.Error(w, "No metric named "+name, 500)
+		http.Error(w, "No metric named \""+name+"\" found", 500)
 		return
 	}
 	defer releaseMetrics(m)

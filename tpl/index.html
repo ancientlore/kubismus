@@ -18,13 +18,15 @@
 			<tbody></tbody>
 		</table>
 		<script>
-			function getReading(name) {
+			function getReading(name, mtype) {
 				var values = [], last;
 
 				return context.metric(function(start, stop, step, callback) {
 					start = +start, stop = +stop;
-					d3.json("json/metrics/" + name
-						+ "?start=" + encodeURIComponent(start)
+					d3.json("json/metrics"
+						+ "?name=" + encodeURIComponent(name)
+						+ "&type=" + encodeURIComponent(mtype)
+						+ "&start=" + encodeURIComponent(start)
 						+ "&stop=" + encodeURIComponent(stop)
 						+ "&step=" + encodeURIComponent(step),
 						function(data) {
@@ -32,7 +34,7 @@
 							callback(null, data);
 						}
 					);
-				}, name);
+				}, name + " - " + mtype);
 			}
 		</script>
 		<script>
@@ -42,11 +44,11 @@
 					.step(1e3)
 					.size(960);
 
-			var readingList = [{{range $i, $v := .Readings}}{{if $i}}, {{end}}"{{$v}}"{{end}}];
+			var readingList = [{{range $i, $v := .Readings}}{{if $i}}, {{end}}{ Name: "{{$v.Name}}", Type: "{{$v.Type}}"}{{end}}];
 			var readings = [];
 
 			for (var i = 0; i < readingList.length; i++) {
-					readings.push(getReading(readingList[i]));
+					readings.push(getReading(readingList[i].Name, readingList[i].Type));
 			}
 
 			d3.select("#kubismus").call(function(div) {
@@ -60,7 +62,7 @@
 					.enter().append("div")
 					.attr("class", "horizon")
 					.call(context.horizon()
-					.height(50));
+					.height(64));
 			});
 
 			context.on("focus", function(i) {
