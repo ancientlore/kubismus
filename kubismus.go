@@ -153,3 +153,25 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func HandleHTTP() {
 	http.Handle(DefaultPath, http.StripPrefix(strings.TrimSuffix(DefaultPath, "/"), http.HandlerFunc(ServeHTTP)))
 }
+
+// HttpRequestMetric returns a handler that logs a metric for the incoming content length
+// after invoking the handler h
+func HttpRequestMetric(reading string, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h.ServeHTTP(w, r)
+		Metric(reading, 1, float64(r.ContentLength))
+	})
+}
+
+// HttpResponseMetric returns a handler that logs a metric for the response content length
+// after invoking the handler h
+func HttpResponseMetric(reading string, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h.ServeHTTP(w, r)
+		l, e := strconv.Atoi(w.Header().Get("Content-Length"))
+		if e != nil {
+			l = 0
+		}
+		Metric(reading, 1, float64(l))
+	})
+}
