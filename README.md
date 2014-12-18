@@ -1,7 +1,14 @@
-kubismus
-========
+![logo](https://raw.githubusercontent.com/ancientlore/kubismus/master/media/kubismus36.png) kubismus
+====================================================================================================
 
 Kubismus is a [go](http://golang.org/) package that makes it easy to display status metrics using [Cubism.js](https://square.github.io/cubism/). ("Kubismus" is the German word for "cubism".)
+
+Checkout the sample code: [ktest.go](https://gist.github.com/ancientlore/7802445bba933a2c85a8)
+
+Screen Shot
+-----------
+
+![screenshot](https://raw.githubusercontent.com/ancientlore/kubismus/master/media/screenshot.jpg)
 
 Defining the HTTP Handler
 -------------------------
