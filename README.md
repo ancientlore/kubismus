@@ -1,6 +1,8 @@
 ![logo](https://raw.githubusercontent.com/ancientlore/kubismus/master/media/kubismus36.png) kubismus
 ====================================================================================================
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ancientlore/kubismus?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Kubismus is a [go](http://golang.org/) package that makes it easy to display status metrics using [Cubism.js](https://square.github.io/cubism/). ("Kubismus" is the German word for "cubism".)
 
 Checkout the sample code: [ktest.go](https://gist.github.com/ancientlore/7802445bba933a2c85a8)
