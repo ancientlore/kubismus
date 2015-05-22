@@ -3,3 +3,11 @@ language: go
 go:
   - 1.4
   - tip
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/3ce178824aaf8b678a9e
+    on_success: change
+    on_failure: always
+    on_start: never
