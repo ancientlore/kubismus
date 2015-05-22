@@ -52,4 +52,4 @@ You can configure the status page's icon and title:
 	kubismus.Setup("My Cool Utility", "/web/kubismus36.png")
 
 [![GoDoc](https://godoc.org/github.com/ancientlore/kubismus?status.svg)](https://godoc.org/github.com/ancientlore/kubismus)
-[![status](https://sourcegraph.com/api/repos/github.com/ancientlore/kubismus/.badges/status.png)](https://sourcegraph.com/github.com/ancientlore/kubismus)
+[![status](https://sourcegraph.com/api/repos/github.com/ancientlore/kubismus/.badges/status.svg)](https://sourcegraph.com/github.com/ancientlore/kubismus)
