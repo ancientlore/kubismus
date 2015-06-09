@@ -1,7 +1,7 @@
 package static
 
 import (
-	"code.google.com/p/snappy-go/snappy"
+	"github.com/golang/snappy/snappy"
 	"encoding/base64"
 	"log"
 	"mime"
