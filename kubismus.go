@@ -66,8 +66,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 // jsonNotes handles returning note data in JSON format
 func jsonNotes(w http.ResponseWriter, r *http.Request) {
-	notes := getNotes()
-	defer releaseNotes(notes)
+	notes := GetNotes()
+	defer ReleaseNotes(notes)
 	e := json.NewEncoder(w)
 	if e == nil {
 		http.Error(w, "Unable to create json encoder", 500)

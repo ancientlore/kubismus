@@ -33,15 +33,15 @@ func Note(name, value string) {
 	noteChan <- note{Name: name, Value: value}
 }
 
-// getNotes returns the currently defined notes.
-func getNotes() []note {
+// GetNotes returns the currently defined notes.
+func GetNotes() []note {
 	c := make(chan []note)
 	getNotesChan <- c
 	return <-c
 }
 
-// releaseNotes returns the slice to the leaky buffer, if possible.
-func releaseNotes(n []note) {
+// ReleaseNotes returns the slice to the leaky buffer, if possible.
+func ReleaseNotes(n []note) {
 	// Reuse buffer if there's room.
 	select {
 	case freeList <- n:
