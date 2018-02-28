@@ -5,15 +5,17 @@ import (
 	"time"
 )
 
+// Op specifies the operation for the metric - count, average, or sum.
 type Op int
 
+// Op types
 const (
 	COUNT Op = 1 << iota
 	AVERAGE
 	SUM
 )
 
-// String converts an Op to a string value
+// String converts an Op to a string value.
 func (op Op) String() string {
 	switch op {
 	case COUNT:
@@ -100,14 +102,14 @@ func releaseMetricDefs(m []metricDef) {
 	}
 }
 
-// GetMetrics returns a list of values for a metric
+// GetMetrics returns a list of values for a metric.
 func GetMetrics(name string, op Op) []float64 {
 	c := getmetric{name: name, op: op, reply: make(chan []float64)}
 	getMetricsChan <- c
 	return <-c.reply
 }
 
-// releaseMetrics returns the slice of values to the leaky buffer, if possible.
+// ReleaseMetrics returns the slice of values to the leaky buffer, if possible.
 // While not required, using it reduces work for the garbage collector.
 func ReleaseMetrics(m []float64) {
 	// Reuse buffer if there's room.

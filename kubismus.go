@@ -1,24 +1,26 @@
 /*
-	kubismus makes it simple to embed a status page in your web service. Using D3 and Cubism, events
-	are stored and then rendered on a dynamic display.
+Package kubismus makes it simple to embed a status page in your web service. Using D3 and Cubism, events
+are stored and then rendered on a dynamic display.
 */
 package kubismus
 
 import (
 	"encoding/json"
-	"github.com/ancientlore/kubismus/static"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/ancientlore/kubismus/static"
 )
 
 // github.com/ancientlore/binder is used to package the web files into the executable.
 //go:generate binder -package static -o static/files.go web/* tpl/*
 
 const (
-	DefaultPath = "/kubismus/" // The default path on the URL to get to the Kubismus display
+	// DefaultPath is the default path on the URL to get to the Kubismus display.
+	DefaultPath = "/kubismus/"
 )
 
 var (
@@ -158,7 +160,7 @@ func HandleHTTP() {
 }
 
 // HttpRequestMetric returns a handler that logs a metric for the incoming content length
-// after invoking the handler h
+// after invoking the handler h.
 func HttpRequestMetric(reading string, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h.ServeHTTP(w, r)
