@@ -1,7 +1,6 @@
 ![logo](https://raw.githubusercontent.com/ancientlore/kubismus/master/media/kubismus36.png) kubismus
 ====================================================================================================
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ancientlore/kubismus?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/ancientlore/kubismus.svg?branch=master)](https://travis-ci.org/ancientlore/kubismus)
 [![GoDoc](https://godoc.org/github.com/ancientlore/kubismus?status.svg)](https://godoc.org/github.com/ancientlore/kubismus)
 
