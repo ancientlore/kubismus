@@ -5,14 +5,12 @@ are stored and then rendered on a dynamic display.
 package kubismus
 
 import (
+	"embed"
 	"encoding/json"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/ancientlore/kubismus/static"
 )
 
 // github.com/ancientlore/binder is used to package the web files into the executable.
@@ -22,6 +20,12 @@ const (
 	// DefaultPath is the default path on the URL to get to the Kubismus display.
 	DefaultPath = "/kubismus/"
 )
+
+//go:embed tpl/index.html
+var tmplStr string
+
+//go:embed web/*
+var web embed.FS
 
 var (
 	mux  *http.ServeMux     // ServeMux to multiplex request paths
@@ -38,11 +42,7 @@ type page struct {
 
 // init sets up the templates and http handlers
 func init() {
-	b := static.Lookup("/tpl/index.html")
-	if b == nil {
-		log.Fatal("Unable to find template")
-	}
-	tmpl = template.Must(template.New("kubismus").Parse(string(b)))
+	tmpl = template.Must(template.New("kubismus").Parse(string(tmplStr)))
 
 	pg.Title = "Kubismus"
 	pg.Image = "web/kubismus36.png"
@@ -50,7 +50,7 @@ func init() {
 
 	mux = http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(index))
-	mux.Handle("/web/", http.HandlerFunc(static.ServeHTTP))
+	mux.Handle("/web/", http.FileServer(http.FS(web)))
 	mux.Handle("/json/notes", http.HandlerFunc(jsonNotes))
 	mux.Handle("/json/metrics/list", http.HandlerFunc(jsonDefs))
 	mux.Handle("/json/metrics", http.HandlerFunc(jsonMetrics))

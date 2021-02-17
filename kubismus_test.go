@@ -1,6 +1,8 @@
 package kubismus
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"runtime"
 	"strconv"
 	"testing"
@@ -172,4 +174,14 @@ func BenchmarkMetrics5(b *testing.B) {
 // 16 readers, 4096 writers, 512 iterations each = 2105344 operations
 func BenchmarkMetrics6(b *testing.B) {
 	benchmarkMetrics(b, 16, 4096, 512)
+}
+
+func TestWebSite(t *testing.T) {
+	req := httptest.NewRequest("GET", "/web/d3.min.js", nil)
+	w := httptest.NewRecorder()
+	mux.ServeHTTP(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusOK {
+		t.Error("Unable to find d3.min.js")
+	}
 }
