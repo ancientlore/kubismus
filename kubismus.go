@@ -13,9 +13,6 @@ import (
 	"strings"
 )
 
-// github.com/ancientlore/binder is used to package the web files into the executable.
-//go:generate binder -package static -o static/files.go web/* tpl/*
-
 const (
 	// DefaultPath is the default path on the URL to get to the Kubismus display.
 	DefaultPath = "/kubismus/"
