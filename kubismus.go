@@ -118,7 +118,7 @@ func jsonMetrics(w http.ResponseWriter, r *http.Request) {
 	count := int((stop - start) / 1000)
 	m := GetMetrics(name, op)
 	if m == nil {
-		http.Error(w, "No metric named \""+name+"\" found", 500)
+		http.Error(w, "No metric found", 500)
 		return
 	}
 	defer ReleaseMetrics(m)
