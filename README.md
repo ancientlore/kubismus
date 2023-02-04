@@ -1,8 +1,7 @@
 ![logo](https://raw.githubusercontent.com/ancientlore/kubismus/master/media/kubismus36.png) kubismus
 ====================================================================================================
 
-[![Build Status](https://travis-ci.org/ancientlore/kubismus.svg?branch=master)](https://travis-ci.org/ancientlore/kubismus)
-[![GoDoc](https://godoc.org/github.com/ancientlore/kubismus?status.svg)](https://godoc.org/github.com/ancientlore/kubismus)
+[![Go Reference](https://pkg.go.dev/badge/github.com/ancientlore/kubismus.svg)](https://pkg.go.dev/github.com/ancientlore/kubismus)
 
 Kubismus is a [go](http://golang.org/) package that makes it easy to display status metrics using [Cubism.js](https://square.github.io/cubism/). ("Kubismus" is the German word for "cubism".)
 
